@@ -4,18 +4,14 @@ on:
   push:
     branches:
       - master
-      - fly-setup
 
 env:
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-  CONNECTION_URL: ${{ secrets.DATABASE_CONNECTION_URL }}
 
 jobs:
   check-for-changes:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo $CONNECTION_URL
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy to FlyIO

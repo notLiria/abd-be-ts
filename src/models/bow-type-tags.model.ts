@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({
-    settings: {
+  settings: {
     idInjection: false,
     postgresql: {schema: 'public', table: 'bow_type_tags'},
   },
@@ -13,8 +13,8 @@ export class BowTypeTags extends Entity {
     generated: false,
     required: true,
     postgresql: {
-      columnName: 'tag_id'
-    }
+      columnName: 'tag_id',
+    },
   })
   tagId: number;
 
@@ -22,11 +22,10 @@ export class BowTypeTags extends Entity {
     type: 'number',
     required: true,
     postgresql: {
-      columnName: "bow_type_id"
-    }
+      columnName: 'bow_type_id',
+    },
   })
   bowTypeId: number;
-
 
   constructor(data?: Partial<BowTypeTags>) {
     super(data);

@@ -4,8 +4,7 @@ import {
   CountSchema,
   FilterBuilder,
   repository,
-  Where,
-  WhereBuilder
+  WhereBuilder,
 } from '@loopback/repository';
 import {
   del,
@@ -14,7 +13,7 @@ import {
   param,
   post,
   requestBody,
-  response
+  response,
 } from '@loopback/rest';
 import {BowTypeTags} from '../models';
 import {BowTypeTagsRepository} from '../repositories';
@@ -23,7 +22,7 @@ import {BowTypeTagsRepository} from '../repositories';
 export class BowTypeTagsByTagIdController {
   constructor(
     @repository(BowTypeTagsRepository)
-    public bowTypeTagsRepository : BowTypeTagsRepository,
+    public bowTypeTagsRepository: BowTypeTagsRepository,
   ) {}
 
   @post('/bow-type-tags-by-tag-id')
@@ -37,7 +36,6 @@ export class BowTypeTagsByTagIdController {
         'application/json': {
           schema: getModelSchemaRef(BowTypeTags, {
             title: 'NewBowTypeTags',
-
           }),
         },
       },
@@ -53,10 +51,8 @@ export class BowTypeTagsByTagIdController {
     description: 'BowTypeTags model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(BowTypeTags) where?: Where<BowTypeTags>,
-  ): Promise<Count> {
-    return this.bowTypeTagsRepository.count(where);
+  async count(): Promise<Count> {
+    return this.bowTypeTagsRepository.count();
   }
 
   @authenticate.skip()
@@ -69,12 +65,12 @@ export class BowTypeTagsByTagIdController {
       },
     },
   })
-  async findById(
-    @param.path.number('tag_id') tagId: number,
-
-  ): Promise<object> {
-    const filterBuilder = new FilterBuilder<BowTypeTags>()
-    const tagIdFilter = filterBuilder.fields('tagId','bowTypeId').where({tagId}).build()
+  async findById(@param.path.number('tag_id') tagId: number): Promise<object> {
+    const filterBuilder = new FilterBuilder<BowTypeTags>();
+    const tagIdFilter = filterBuilder
+      .fields('tagId', 'bowTypeId')
+      .where({tagId})
+      .build();
     return this.bowTypeTagsRepository.find(tagIdFilter);
   }
 
@@ -84,10 +80,12 @@ export class BowTypeTagsByTagIdController {
   })
   async deleteById(
     @param.path.number('tag_id') tagId: number,
-    @param.path.number('bow_type_id') bowTypeId: number
+    @param.path.number('bow_type_id') bowTypeId: number,
   ): Promise<void> {
     const whereBuilder = new WhereBuilder<BowTypeTags>();
-    const whereFilter = whereBuilder.and({'bowTypeId': bowTypeId}, {'tagId': tagId}).build()
-    await this.bowTypeTagsRepository.deleteAll(whereFilter)
+    const whereFilter = whereBuilder
+      .and({bowTypeId: bowTypeId}, {tagId: tagId})
+      .build();
+    await this.bowTypeTagsRepository.deleteAll(whereFilter);
   }
 }

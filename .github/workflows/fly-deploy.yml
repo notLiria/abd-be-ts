@@ -1,5 +1,6 @@
 name: Deploy to Fly IO
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

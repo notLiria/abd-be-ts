@@ -4,7 +4,7 @@ import {juggler} from '@loopback/repository';
 const config = {
   name: 'abd_be_pgsql',
   connector: 'postgresql',
-  url: 'postgresql://postgres:bdK1ct2x4UCwxS2@localhost:5432/abd_be_1',
+  url: process.env.CONNECTION_URL,
   host: '',
   port: 0,
   user: '',

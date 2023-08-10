@@ -7,6 +7,9 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
+      "env": {
+        "CONNECTION_URL": "postgresql://postgres:bdK1ct2x4UCwxS2@localhost:5432/abd_be_1",
+      },
       "program": "${workspaceFolder}/dist/index.js",
     },
     {

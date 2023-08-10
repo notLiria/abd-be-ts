@@ -11,6 +11,7 @@ export async function main(options: ApplicationConfig = {}) {
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);
 
+  console.log(process.env.CONNECTION_URL)
   return app;
 }
 

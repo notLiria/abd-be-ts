@@ -3,8 +3,8 @@ import {
   Count,
   CountSchema,
   FilterBuilder,
-  repository,
   WhereBuilder,
+  repository
 } from '@loopback/repository';
 import {
   del,
@@ -19,13 +19,13 @@ import {BowTypeTags} from '../models';
 import {BowTypeTagsRepository} from '../repositories';
 
 @authenticate('jwt')
-export class BowTypeTagsByTagIdController {
+export class BowTypeTagsController {
   constructor(
     @repository(BowTypeTagsRepository)
     public bowTypeTagsRepository: BowTypeTagsRepository,
   ) {}
 
-  @post('/bow-type-tags-by-tag-id')
+  @post('/bow-type-tags')
   @response(200, {
     description: 'BowTypeTags model instance',
     content: {'application/json': {schema: getModelSchemaRef(BowTypeTags)}},
@@ -46,7 +46,7 @@ export class BowTypeTagsByTagIdController {
   }
 
   @authenticate.skip()
-  @get('/bow-type-tags-by-tag-id/count')
+  @get('/bow-type-tags/count')
   @response(200, {
     description: 'BowTypeTags model count',
     content: {'application/json': {schema: CountSchema}},
@@ -56,7 +56,7 @@ export class BowTypeTagsByTagIdController {
   }
 
   @authenticate.skip()
-  @get('/bow-type-tags-by-tag-id/{tag_id}')
+  @get('/bow-type-tags/tag/{tag_id}')
   @response(200, {
     description: 'BowTypeTags model instance',
     content: {
@@ -74,18 +74,45 @@ export class BowTypeTagsByTagIdController {
     return this.bowTypeTagsRepository.find(tagIdFilter);
   }
 
-  @del('/bow-type-tags-by-tag-id/{tag_id}/{bow_type_id}')
+  @authenticate.skip()
+  @get('/bow-type-tags/bow-type/{bow_type_id}')
+  @response(200, {
+    description: 'BowTypeTags model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(BowTypeTags, {includeRelations: true}),
+      },
+    },
+  })
+  async findByBowTypeId(@param.path.number('bow_type_id') bowTypeId: number): Promise<object> {
+    const filterBuilder = new FilterBuilder<BowTypeTags>();
+    const bowTypeIdFilter = filterBuilder
+      .fields('tagId', 'bowTypeId')
+      .where({bowTypeId})
+      .build();
+    return this.bowTypeTagsRepository.find(bowTypeIdFilter);
+  }
+
+  @del('/bow-type-tags/')
   @response(204, {
     description: 'BowTypeTags DELETE success',
   })
   async deleteById(
-    @param.path.number('tag_id') tagId: number,
-    @param.path.number('bow_type_id') bowTypeId: number,
-  ): Promise<void> {
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(BowTypeTags, {
+            title: 'BowTypeTag',
+          }),
+        },
+      },
+    })
+    bowTypeTag: BowTypeTags
+  ): Promise<object> {
     const whereBuilder = new WhereBuilder<BowTypeTags>();
     const whereFilter = whereBuilder
-      .and({bowTypeId: bowTypeId}, {tagId: tagId})
+      .and({bowTypeId: bowTypeTag.bowTypeId}, {tagId: bowTypeTag.tagId})
       .build();
-    await this.bowTypeTagsRepository.deleteAll(whereFilter);
+    return this.bowTypeTagsRepository.deleteAll(whereFilter);
   }
 }

@@ -1,4 +1,6 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, hasMany, model, property} from '@loopback/repository';
+
+import {Samples} from './samples.model';
 
 @model({
   settings: {
@@ -63,7 +65,8 @@ export class BowTypes extends Entity {
   bowLink?: string;
 
   // Define well-known properties here
-
+  @hasMany(() => Samples, {keyTo: 'sample_id'})
+  samples: Samples[];
   // Indexer property to allow additional data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;

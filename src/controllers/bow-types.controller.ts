@@ -68,6 +68,23 @@ export class BowTypesController {
     return data.map(item => this.transformOutput(item));
   }
 
+  @get('/bow-types/{id}')
+  @response(200, {
+    description: 'Array of all BowTypes model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(BowTypes, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findById(@param.path.number('id') bowTypeId: number): Promise<Object> {
+    const data = await this.bowTypesRepository.findById(bowTypeId);
+    return data;
+  }
+
   @authenticate('jwt')
   @patch('/bow-types/{id}')
   @response(204, {

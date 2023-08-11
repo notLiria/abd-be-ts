@@ -37,8 +37,6 @@ export class BowTypesController {
     })
     bowTypes: Omit<BowTypes, 'bowTypeId'>,
   ): Promise<object> {
-    console.log(bowTypes);
-    //return bowTypes
     return this.bowTypesRepository.create(bowTypes);
   }
 

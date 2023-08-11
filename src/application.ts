@@ -14,7 +14,7 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
-import {UserDbDataSource} from './datasources';
+import {AbdBePgsqlDataSource} from './datasources';
 import {MySequence} from './sequence';
 
 export {ApplicationConfig};
@@ -38,8 +38,7 @@ export class AsiaticBowBackendApplication extends BootMixin(
     this.component(RestExplorerComponent);
     this.component(AuthenticationComponent);
     this.component(JWTAuthenticationComponent);
-
-    this.dataSource(UserDbDataSource, UserServiceBindings.DATASOURCE_NAME);
+    this.dataSource(AbdBePgsqlDataSource, UserServiceBindings.DATASOURCE_NAME);
 
     this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
     this.projectRoot = __dirname;

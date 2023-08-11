@@ -4,7 +4,7 @@ import {
   CountSchema,
   FilterBuilder,
   WhereBuilder,
-  repository
+  repository,
 } from '@loopback/repository';
 import {
   del,
@@ -84,7 +84,9 @@ export class BowTypeTagsController {
       },
     },
   })
-  async findByBowTypeId(@param.path.number('bow_type_id') bowTypeId: number): Promise<object> {
+  async findByBowTypeId(
+    @param.path.number('bow_type_id') bowTypeId: number,
+  ): Promise<object> {
     const filterBuilder = new FilterBuilder<BowTypeTags>();
     const bowTypeIdFilter = filterBuilder
       .fields('tagId', 'bowTypeId')
@@ -107,7 +109,7 @@ export class BowTypeTagsController {
         },
       },
     })
-    bowTypeTag: BowTypeTags
+    bowTypeTag: BowTypeTags,
   ): Promise<object> {
     const whereBuilder = new WhereBuilder<BowTypeTags>();
     const whereFilter = whereBuilder

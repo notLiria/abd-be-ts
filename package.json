@@ -24,6 +24,8 @@
     "pretest": "npm run rebuild",
     "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
     "posttest": "npm run lint",
+    "jest": "jest",
+    "jest:cov": "jest --coverage",
     "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
     "docker:build": "docker build -t asiatic-bow-backend .",
     "docker:run": "docker run -p 3000:3000 -d asiatic-bow-backend",
@@ -49,6 +51,23 @@
     "src",
     "!*/__tests__"
   ],
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "@loopback/authentication": "^10.1.1",
     "@loopback/authentication-jwt": "^0.14.1",
@@ -58,9 +77,11 @@
     "@loopback/rest": "^13.1.1",
     "@loopback/rest-explorer": "^6.1.1",
     "@loopback/service-proxy": "^6.1.1",
+    "jest": "^29.6.2",
     "loopback-connector-postgresql": "^5.5.2",
     "mathjs": "^11.9.1",
     "ml-matrix": "^6.10.4",
+    "ts-jest": "^29.1.1",
     "tsc-watch": "^6.0.4",
     "tslib": "^2.0.0"
   },
@@ -69,6 +90,7 @@
     "@loopback/build": "^10.1.1",
     "@loopback/eslint-config": "^14.0.2",
     "@loopback/testlab": "^6.1.1",
+    "@types/jest": "^29.5.3",
     "@types/node": "^16.18.38",
     "eslint": "^8.45.0",
     "source-map-support": "^0.5.21",

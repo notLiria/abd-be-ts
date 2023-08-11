@@ -1,4 +1,4 @@
-import { cumtrapz, columnStack , vstack} from "./mathFunctions";
+import {columnStack, cumtrapz, vstack} from "./mathFunctions";
 
 describe('cumtrapz', () => {
 
@@ -36,7 +36,7 @@ describe('cumtrapz', () => {
         expect(result).toEqual([0, -2, -4, -6, -8]);
     });
 
-    
+
 
 });
 

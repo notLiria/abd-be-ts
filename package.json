@@ -59,6 +59,8 @@
     "@loopback/rest-explorer": "^6.1.1",
     "@loopback/service-proxy": "^6.1.1",
     "loopback-connector-postgresql": "^5.5.2",
+    "mathjs": "^11.9.1",
+    "ml-matrix": "^6.10.4",
     "tsc-watch": "^6.0.4",
     "tslib": "^2.0.0"
   },

@@ -1,3 +1,4 @@
+import {DfcCoeffs} from './types';
 
 export const cumtrapz = (y: number[], x: number[]): number[] => {
     if (y.length !== x.length) {
@@ -54,4 +55,8 @@ export const vstack = (...arrays: number[][][]): number[][] => {
     }
 
     return stackedArray;
+}
+
+export const stringifyDfcEqn = (expCoeffs: DfcCoeffs) => {
+ return `f(x) = ${expCoeffs.p0/expCoeffs.lambda0} * e^(${expCoeffs.lambda0}x) + ${expCoeffs.p1/expCoeffs.lambda1} * e^(${expCoeffs.lambda1} * x)`
 }

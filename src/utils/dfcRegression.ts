@@ -3,7 +3,7 @@ import Matrix, {EigenvalueDecomposition, pseudoInverse} from 'ml-matrix';
 import * as curveFit from './curveFit';
 import {columnStack, cumtrapz, vstack} from './mathFunctions';
 
-import type {Point} from './types';
+import type {DfcCoeffs, Point} from './types';
 
 export const fitPoly = (points: Point[], degree: number): number[]  => {
     const n = points.length;
@@ -59,7 +59,6 @@ export const calcCentralDifferences = (dfData: Point[]): Point[] => {
     return dfData.map((point, i) => ({ x: point.x, y: centralDifferences[i] }));
 }
 
-
 export const exponentiallyFitDfData = (dfData: Point[]) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const output: any = {}
@@ -98,5 +97,5 @@ export const exponentiallyFitDfData = (dfData: Point[]) => {
      }
      const result = curveFit.curveFit(dfFunc, xVals, yVals, [5]);
      output.c = result.params[0]
-     return output
+     return output as DfcCoeffs
 }

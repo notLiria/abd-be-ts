@@ -8,7 +8,6 @@ import {Entity, model, property} from '@loopback/repository';
 export class Samples extends Entity {
   @property({
     type: 'number',
-    required: true,
     id: true,
     postgresql: {
       columnName: 'sample_id',
@@ -24,13 +23,13 @@ export class Samples extends Entity {
 
   @property({
     type: 'number',
+    required: true,
     postgresql: {
       columnName: 'bow_type_id',
       dataType: 'integer',
       dataLength: null,
       dataPrecision: 53,
       dataScale: null,
-      nullable: 'YES',
     },
   })
   bowTypeId: number;
@@ -515,15 +514,9 @@ export class Samples extends Entity {
     type: 'string',
     postgresql: {
       columnName: 'stored_energy',
-      dataType: 'ARRAY',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
-      nullable: 'YES',
-      generated: undefined,
     },
   })
-  storedEnergy?: string;
+  storedEnergy?: number;
 
   @property({
     type: 'string',

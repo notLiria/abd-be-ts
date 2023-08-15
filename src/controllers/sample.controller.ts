@@ -17,6 +17,9 @@ import {
 } from '@loopback/rest';
 import {Samples} from '../models';
 import {SamplesRepository} from '../repositories';
+import {exponentiallyFitDfData} from '../utils/dfcRegression';
+import {calcTotalEnergy} from '../utils/energyCalcs';
+import {stringifyDfcEqn} from '../utils/mathFunctions';
 
 @authenticate('jwt')
 export class SampleController {
@@ -41,9 +44,17 @@ export class SampleController {
         },
       },
     })
-    samples: Omit<Samples, 'sampleId'>,
-  ): Promise<Samples> {
-    return this.samplesRepository.create(samples);
+    sample: Omit<Samples, 'sampleId'>,
+  ): Promise<Object> {
+    const dfData = JSON.parse(sample.dfData)
+    const expCoeffs = exponentiallyFitDfData(dfData);
+    const totalEnergy = calcTotalEnergy(expCoeffs, dfData)
+    console.log(expCoeffs)
+    console.log(totalEnergy)
+
+    console.log(stringifyDfcEqn(expCoeffs))
+    //return this.samplesRepository.create(samples);
+    return {}
   }
 
   @authenticate.skip()

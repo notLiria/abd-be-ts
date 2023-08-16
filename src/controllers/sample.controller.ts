@@ -18,7 +18,7 @@ import {
 import {Samples} from '../models';
 import {SamplesRepository} from '../repositories';
 import {exponentiallyFitDfData} from '../utils/dfcRegression';
-import {calcTotalEnergy} from '../utils/energyCalcs';
+import {calcEnergyAtPoint, getLongbowPoint} from '../utils/energyCalcs';
 import {stringifyDfcEqn} from '../utils/mathFunctions';
 
 @authenticate('jwt')
@@ -48,11 +48,14 @@ export class SampleController {
   ): Promise<Object> {
     const dfData = JSON.parse(sample.dfData)
     const expCoeffs = exponentiallyFitDfData(dfData);
-    const totalEnergy = calcTotalEnergy(expCoeffs, dfData)
-    console.log(expCoeffs)
-    console.log(totalEnergy)
-
+    //const totalEnergy = calcTotalEnergy(expCoeffs, dfData)
+    const partialEnergy = calcEnergyAtPoint(expCoeffs, dfData, 34)
+    const longbowPoint = getLongbowPoint(dfData, expCoeffs);
     console.log(stringifyDfcEqn(expCoeffs))
+    //console.log(totalEnergy);
+    console.log(partialEnergy)
+    console.log(longbowPoint)
+
     //return this.samplesRepository.create(samples);
     return {}
   }

@@ -58,5 +58,11 @@ export const vstack = (...arrays: number[][][]): number[][] => {
 }
 
 export const stringifyDfcEqn = (expCoeffs: DfcCoeffs) => {
- return `f(x) = ${expCoeffs.p0/expCoeffs.lambda0} * e^(${expCoeffs.lambda0}x) + ${expCoeffs.p1/expCoeffs.lambda1} * e^(${expCoeffs.lambda1} * x)`
+ return `f(x) = ${expCoeffs.p0/expCoeffs.lambda0} * e^(${expCoeffs.lambda0}x) + ${expCoeffs.p1/expCoeffs.lambda1} * e^(${expCoeffs.lambda1} * x) + ${expCoeffs.c}`
+}
+
+export const linspace = (start: number, stop:number, num:number, endpoint = true) => {
+    const div = endpoint ? (num - 1) : num;
+    const step = (stop - start) / div;
+    return Array.from({length: num}, (_, i) => start + step * i);
 }

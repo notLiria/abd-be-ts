@@ -17,9 +17,18 @@ import {
 } from '@loopback/rest';
 import {Samples} from '../models';
 import {SamplesRepository} from '../repositories';
-import {exponentiallyFitDfData} from '../utils/dfcRegression';
-import {calcEnergyAtPoint, getLongbowPoint} from '../utils/energyCalcs';
-import {stringifyDfcEqn} from '../utils/mathFunctions';
+import {dfPairsToPath} from '../utils/dbFunctions';
+import {
+  calcCentralDifferences,
+  calcDerivative,
+  calcRegressionCurve,
+  exponentiallyFitDfData,
+} from '../utils/dfcRegression';
+import {getLongbowPoint} from '../utils/energyCalcs';
+import {
+  stringifyDfcDerivativeEqn,
+  stringifyDfcEqn,
+} from '../utils/mathFunctions';
 
 @authenticate('jwt')
 export class SampleController {
@@ -44,20 +53,38 @@ export class SampleController {
         },
       },
     })
-    sample: Omit<Samples, 'sampleId'>,
+    userSample: Omit<Samples, 'sampleId'>,
   ): Promise<Object> {
-    const dfData = JSON.parse(sample.dfData)
+    const newSample: Omit<Samples, 'sampleId'> = {
+      ...userSample,
+    };
+    const dfData = JSON.parse(userSample.dfData);
     const expCoeffs = exponentiallyFitDfData(dfData);
-    //const totalEnergy = calcTotalEnergy(expCoeffs, dfData)
-    const partialEnergy = calcEnergyAtPoint(expCoeffs, dfData, 34)
-    const longbowPoint = getLongbowPoint(dfData, expCoeffs);
-    console.log(stringifyDfcEqn(expCoeffs))
-    //console.log(totalEnergy);
-    console.log(partialEnergy)
-    console.log(longbowPoint)
 
-    //return this.samplesRepository.create(samples);
-    return {}
+    newSample.centralDifferences = dfPairsToPath(
+      calcCentralDifferences(dfData),
+    );
+    newSample.longbowPoint = getLongbowPoint(dfData, expCoeffs);
+    newSample.regressionCurve = dfPairsToPath(
+      calcRegressionCurve(dfData, expCoeffs),
+    );
+
+    newSample.regressionEqn = stringifyDfcEqn(expCoeffs);
+    newSample.regressionDerivative = stringifyDfcDerivativeEqn(expCoeffs);
+    newSample.regressionDerivativeValues = dfPairsToPath(
+      calcDerivative(dfData, expCoeffs),
+    );
+    newSample.dfData = dfPairsToPath(dfData);
+    newSample.coeffs = `{${[
+      expCoeffs.p0,
+      expCoeffs.p1,
+      expCoeffs.lambda0,
+      expCoeffs.lambda1,
+      expCoeffs.c,
+    ].join(',')}}`;
+
+    console.log(newSample);
+    return this.samplesRepository.create(newSample);
   }
 
   @authenticate.skip()

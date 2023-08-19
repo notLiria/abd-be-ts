@@ -354,7 +354,7 @@ export class Samples extends Entity {
       generated: undefined,
     },
   })
-  contributorContactType?: string;
+  contributorContactType: string;
 
   @property({
     type: 'string',
@@ -368,7 +368,7 @@ export class Samples extends Entity {
       generated: undefined,
     },
   })
-  contributorContactInfo?: string;
+  contributorContactInfo: string;
 
   @property({
     type: 'string',
@@ -473,11 +473,6 @@ export class Samples extends Entity {
     postgresql: {
       columnName: 'df_data_text',
       dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
-      nullable: 'YES',
-      generated: undefined,
     },
   })
   dfDataText?: string;

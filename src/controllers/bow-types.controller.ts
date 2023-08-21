@@ -62,8 +62,7 @@ export class BowTypesController {
     },
   })
   async find(): Promise<Object[]> {
-    const data = await this.bowTypesRepository.find();
-    return data.map(item => this.transformOutput(item));
+    return this.bowTypesRepository.find();
   }
 
   @get('/bow-types/{id}')
@@ -100,17 +99,5 @@ export class BowTypesController {
     bowTypes: BowTypes,
   ): Promise<void> {
     await this.bowTypesRepository.updateById(id, bowTypes);
-  }
-
-  transformOutput(item: BowTypes): object {
-    return {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      bow_type_id: item.bowTypeId,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      model_name: item.modelName,
-      manufacturer: item.manufacturer,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      bow_link: item.bowLink,
-    };
   }
 }

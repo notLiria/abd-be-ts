@@ -7,3 +7,5 @@ export * from './sample.controller';
 
 export * from './user-controller.controller';
 export * from './torsional-stability.controller';
+export * from './ping.controller';
+export * from './fps-data.controller';

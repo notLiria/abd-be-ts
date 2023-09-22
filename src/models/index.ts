@@ -6,3 +6,4 @@ export * from './bow-type-tags.model';
 export * from './samples.model';
 export * from './user.model';
 export * from './torsional-stability-data.model';
+export * from './fps-data.model';

@@ -6,12 +6,22 @@
 app = "abd-be-ts"
 primary_region = "bos"
 
-[build]
+[env]
+  PORT= "8080"
 
 [http_service]
-  internal_port = 3001
+  internal_port = 8080
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
   processes = ["app"]
+
+#[[services.http_checks]]
+#    interval = 10000
+#    grace_period = "30s"
+#    method = "get"
+#    path = "/ping"
+#    protocol = "https"
+#    timeout = 20000
+#    tls_skip_verify = true

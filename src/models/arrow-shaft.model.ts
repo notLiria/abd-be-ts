@@ -1,6 +1,14 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({
+  settings: {
+    idInjection: false,
+    postgresql: {
+      schema: 'public',
+      table: 'arrow_shafts',
+    },
+  },
+})
 export class ArrowShaft extends Entity {
   @property({
     type: 'number',

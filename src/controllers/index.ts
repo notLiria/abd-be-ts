@@ -9,3 +9,4 @@ export * from './user-controller.controller';
 export * from './torsional-stability.controller';
 export * from './ping.controller';
 export * from './fps-data.controller';
+export * from './arrow-shaft.controller';

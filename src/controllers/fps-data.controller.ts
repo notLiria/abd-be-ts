@@ -4,7 +4,7 @@ import {
   CountSchema,
   FilterBuilder,
   repository,
-  Where
+  Where,
 } from '@loopback/repository';
 import {
   get,
@@ -12,7 +12,7 @@ import {
   param,
   post,
   requestBody,
-  response
+  response,
 } from '@loopback/rest';
 import {FpsData} from '../models';
 import {FpsDataRepository} from '../repositories';
@@ -20,7 +20,7 @@ import {FpsDataRepository} from '../repositories';
 export class FpsDataController {
   constructor(
     @repository(FpsDataRepository)
-    public fpsDataRepository : FpsDataRepository,
+    public fpsDataRepository: FpsDataRepository,
   ) {}
 
   @authenticate('jwt')
@@ -37,16 +37,16 @@ export class FpsDataController {
             type: 'array',
             items: getModelSchemaRef(FpsData, {
               title: 'NewFpsData',
-              exclude: ['fpsId']
-            })
-          }
+              exclude: ['fpsId'],
+            }),
+          },
         },
       },
     })
     fpsData: Omit<FpsData, 'fps_id'>[],
   ): Promise<FpsData[]> {
-    console.log(`Fps Data`)
-    console.log(fpsData)
+    console.log(`Fps Data`);
+    console.log(fpsData);
     return this.fpsDataRepository.createAll(fpsData);
   }
 
@@ -55,9 +55,7 @@ export class FpsDataController {
     description: 'FpsData Point count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(FpsData) where?: Where<FpsData>,
-  ): Promise<Count> {
+  async count(@param.where(FpsData) where?: Where<FpsData>): Promise<Count> {
     return this.fpsDataRepository.count(where);
   }
 
@@ -77,9 +75,7 @@ export class FpsDataController {
     @param.path.number('sample_id') sampleId: number,
   ): Promise<FpsData[]> {
     const filterBuilder = new FilterBuilder<FpsData>();
-    const sampleIdFilter = filterBuilder
-      .where({sampleId})
-      .build()
-      return this.fpsDataRepository.find(sampleIdFilter)
+    const sampleIdFilter = filterBuilder.where({sampleId}).build();
+    return this.fpsDataRepository.find(sampleIdFilter);
   }
 }

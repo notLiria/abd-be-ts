@@ -40,7 +40,7 @@ export class PingController {
     },
   })
   ping(): object {
-    console.log(`Ping route has been hit`)
+    console.log(`Ping route has been hit`);
     // Reply with a greeting, the current time, the url, and request headers
     return {
       greeting: 'Hello from LoopBack',

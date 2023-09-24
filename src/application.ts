@@ -27,7 +27,7 @@ export class AsiaticBowBackendApplication extends BootMixin(
 
     // Set up the custom sequence
     this.sequence(MySequence);
-
+    console.log(`Connecting with ${process.env.DATABASE_URL}`)
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
 

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {
   Count,
@@ -24,7 +25,6 @@ import AWS from 'aws-sdk';
 import stream from 'stream';
 const {Duplex} = stream;
 
-import {authenticate} from '@loopback/authentication';
 import md5 from 'md5';
 import multer from 'multer';
 import {BowPicture} from '../models';
@@ -83,8 +83,8 @@ export class BowPicturesController {
     })
     request: Request,
     @inject(RestBindings.Http.RESPONSE) uploadResponse: Response,
-  ): Promise<Object> {
-    return new Promise<Object>((resolve, reject) => {
+  ): Promise<BowPicture[]> {
+    return new Promise<BowPicture[]>((resolve, reject) => {
       const storage = multer.memoryStorage();
       const upload = multer({storage});
 
@@ -132,12 +132,13 @@ export class BowPicturesController {
                 sampleId: request.body.sample_id,
                 caption: descriptionArray[index],
               });
-              newDbEntries.push(this.bowPictureRepository.create(newDbEntry));
+              newDbEntries.push(newDbEntry);
             } catch (error) {
               reject(error);
             }
           }
-          resolve(newDbEntries);
+          const createdEntries = await this.bowPictureRepository.createAll(newDbEntries);
+          resolve(createdEntries)
         }
       });
     });

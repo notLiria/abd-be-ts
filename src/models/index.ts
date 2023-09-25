@@ -9,3 +9,4 @@ export * from './torsional-stability-data.model';
 export * from './fps-data.model';
 export * from './arrow-shaft.model';
 export * from './bow-picture.model';
+export * from './shaft-collar.model';

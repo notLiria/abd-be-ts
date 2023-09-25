@@ -11,3 +11,4 @@ export * from './ping.controller';
 export * from './fps-data.controller';
 export * from './arrow-shaft.controller';
 export * from './bow-pictures.controller';
+export * from './shaft-collar.controller';

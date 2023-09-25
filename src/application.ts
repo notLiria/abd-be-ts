@@ -27,7 +27,8 @@ export class AsiaticBowBackendApplication extends BootMixin(
 
     // Set up the custom sequence
     this.sequence(MySequence);
-    console.log(`Connecting with ${process.env.DATABASE_URL}`)
+    console.debug(`Connecting with ${process.env.DATABASE_URL}`)
+    console.debug(`Using debug setting ${process.env.DEBUG}`)
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
 
@@ -36,6 +37,8 @@ export class AsiaticBowBackendApplication extends BootMixin(
     this.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
     });
+
+
     this.component(RestExplorerComponent);
     this.component(AuthenticationComponent);
     this.component(JWTAuthenticationComponent);

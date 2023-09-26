@@ -7,6 +7,15 @@ USER node
 # Create app directory (with user `node`)
 RUN mkdir -p /home/node/app
 
+# Switch to root user
+USER root
+
+# Install the necessary utilities
+RUN apt-get update && apt-get install -y curl wget net-tools procps
+
+# Switch back to node user
+USER node
+
 WORKDIR /home/node/app
 
 LABEL fly_launch_runtime="Node.js"
@@ -17,6 +26,7 @@ LABEL fly_launch_runtime="Node.js"
 # where available (npm@5+)
 COPY --chown=node package*.json ./
 
+
 RUN npm install
 
 # Bundle app source code
@@ -25,7 +35,8 @@ COPY --chown=node . .
 RUN npm run build
 
 # Bind to all network interfaces so that it can be mapped to the host OS
-ENV HOST=0.0.0.0 PORT=3001
+ENV HOST=0.0.0.0 PORT=8080
 
 EXPOSE ${PORT}
+
 CMD [ "node", "." ]

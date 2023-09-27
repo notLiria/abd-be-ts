@@ -10,3 +10,4 @@ export * from './fps-data.repository';
 export * from './arrow-shaft.repository';
 export * from './bow-picture.repository';
 export * from './shaft-collar.repository';
+export * from './data-update.repository';

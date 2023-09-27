@@ -10,3 +10,4 @@ export * from './fps-data.model';
 export * from './arrow-shaft.model';
 export * from './bow-picture.model';
 export * from './shaft-collar.model';
+export * from './data-update.model';

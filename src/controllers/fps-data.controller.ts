@@ -1,4 +1,5 @@
 import {authenticate} from '@loopback/authentication';
+import {inject} from '@loopback/context';
 import {
   Count,
   CountSchema,
@@ -14,11 +15,14 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {FpsData} from '../models';
+import {DataUpdate, FpsData} from '../models';
 import {FpsDataRepository} from '../repositories';
+import {DataUpdateController} from './data-update.controller';
 
 export class FpsDataController {
   constructor(
+    @inject('controllers.DataUpdateController')
+    private dataUpdateController: DataUpdateController,
     @repository(FpsDataRepository)
     public fpsDataRepository: FpsDataRepository,
   ) {}
@@ -45,9 +49,15 @@ export class FpsDataController {
     })
     fpsData: Omit<FpsData, 'fps_id'>[],
   ): Promise<FpsData[]> {
-    console.log(`Fps Data`);
-    console.log(fpsData);
-    return this.fpsDataRepository.createAll(fpsData);
+    const fpsDataResult = await this.fpsDataRepository.createAll(fpsData);
+
+    await this.dataUpdateController.createUpdates(
+      fpsDataResult.map(fpsPoint => {
+        return new DataUpdate({fpsId: fpsPoint.fpsId});
+      }),
+    );
+
+    return fpsDataResult;
   }
 
   @get('/fps-data/count')

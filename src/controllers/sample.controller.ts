@@ -1,4 +1,5 @@
 import {authenticate} from '@loopback/authentication';
+import {inject} from '@loopback/context';
 import {
   Count,
   CountSchema,
@@ -15,7 +16,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Samples} from '../models';
+import {DataUpdate, Samples} from '../models';
 import {SamplesRepository} from '../repositories';
 import {dfPairsToPath} from '../utils/dbFunctions';
 import {
@@ -30,9 +31,13 @@ import {
   stringifyDfcEqn,
 } from '../utils/mathFunctions';
 
+import {DataUpdateController} from './data-update.controller';
+
 @authenticate('jwt')
 export class SampleController {
   constructor(
+    @inject('controllers.DataUpdateController')
+    private dataUpdateController: DataUpdateController,
     @repository(SamplesRepository)
     public samplesRepository: SamplesRepository,
   ) {}
@@ -83,8 +88,15 @@ export class SampleController {
       expCoeffs.c,
     ].join(',')}}`;
 
-    console.log(newSample);
-    return this.samplesRepository.create(newSample);
+    const createdSample = await this.samplesRepository.create(newSample);
+
+    await this.dataUpdateController.createUpdates([
+      new DataUpdate({
+        bowTypeId: newSample.bow_type_id,
+      }),
+    ]);
+
+    return createdSample;
   }
 
   @authenticate.skip()

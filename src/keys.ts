@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {BindingKey} from '@loopback/core';
-import {CachingService} from './caching-service';
+import {AutoTaggerService, CachingService} from './services/';
 
 /**
  * Strongly-typed binding key for CachingService
@@ -12,3 +12,7 @@ import {CachingService} from './caching-service';
 export const CACHING_SERVICE = BindingKey.create<CachingService>(
   'services.CachingService',
 );
+
+export const AUTOTAGGING_SERVICE = BindingKey.create<AutoTaggerService>(
+  'services.AutoTaggerService'
+)

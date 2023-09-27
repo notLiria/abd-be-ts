@@ -16,6 +16,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+
 import {DataUpdate, Samples} from '../models';
 import {SamplesRepository} from '../repositories';
 import {dfPairsToPath} from '../utils/dbFunctions';
@@ -31,17 +32,22 @@ import {
   stringifyDfcEqn,
 } from '../utils/mathFunctions';
 
+import {AutoTaggerService} from '../services';
 import {DataUpdateController} from './data-update.controller';
+
 
 @authenticate('jwt')
 export class SampleController {
   constructor(
+    @inject('services.AutoTaggerService')
+    private autoTaggerService: AutoTaggerService,
     @inject('controllers.DataUpdateController')
     private dataUpdateController: DataUpdateController,
     @repository(SamplesRepository)
     public samplesRepository: SamplesRepository,
   ) {}
 
+  @authenticate.skip()
   @post('/samples')
   @response(200, {
     description: 'Samples model instance',
@@ -88,6 +94,7 @@ export class SampleController {
       expCoeffs.c,
     ].join(',')}}`;
 
+
     const createdSample = await this.samplesRepository.create(newSample);
 
     await this.dataUpdateController.createUpdates([
@@ -96,6 +103,7 @@ export class SampleController {
       }),
     ]);
 
+    await this.autoTaggerService.tagSample(newSample);
     return createdSample;
   }
 

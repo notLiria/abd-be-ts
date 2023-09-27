@@ -14,11 +14,12 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
-import {CachingService} from './caching-service';
 import {AbdBePgsqlDataSource} from './datasources';
 import {CachingInterceptor} from './interceptors';
-import {CACHING_SERVICE} from './keys';
+import {AUTOTAGGING_SERVICE, CACHING_SERVICE} from './keys';
 import {MySequence} from './sequence';
+import {AutoTaggerService} from './services';
+import {CachingService} from './services/caching.service';
 
 export {ApplicationConfig};
 
@@ -44,6 +45,9 @@ export class AsiaticBowBackendApplication extends BootMixin(
     this.configure(CACHING_SERVICE).to({ttl: 43200000});
     this.add(createBindingFromClass(CachingService, {key: CACHING_SERVICE}));
     this.add(createBindingFromClass(CachingInterceptor));
+
+    this.add(createBindingFromClass(AutoTaggerService, {key: AUTOTAGGING_SERVICE}));
+
     this.component(RestExplorerComponent);
     this.component(AuthenticationComponent);
     this.component(JWTAuthenticationComponent);

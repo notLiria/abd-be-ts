@@ -5,7 +5,7 @@ import {
   UserServiceBindings,
 } from '@loopback/authentication-jwt';
 import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
+import {ApplicationConfig, createBindingFromClass} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {
@@ -14,7 +14,10 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {CachingService} from './caching-service';
 import {AbdBePgsqlDataSource} from './datasources';
+import {CachingInterceptor} from './interceptors';
+import {CACHING_SERVICE} from './keys';
 import {MySequence} from './sequence';
 
 export {ApplicationConfig};
@@ -27,18 +30,20 @@ export class AsiaticBowBackendApplication extends BootMixin(
 
     // Set up the custom sequence
     this.sequence(MySequence);
-    console.debug(`Connecting with ${process.env.DATABASE_URL}`)
-    console.debug(`Using debug setting ${process.env.DEBUG}`)
+    console.debug(`Connecting with ${process.env.DATABASE_URL}`);
+    console.debug(`Using debug setting ${process.env.DEBUG}`);
     // Set up default home page
     this.static('/', path.join(__dirname, '../public'));
-
 
     // Customize @loopback/rest-explorer configuration here
     this.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
     });
 
-
+    // Configure caching
+    this.configure(CACHING_SERVICE).to({ttl: 43200000});
+    this.add(createBindingFromClass(CachingService, {key: CACHING_SERVICE}));
+    this.add(createBindingFromClass(CachingInterceptor));
     this.component(RestExplorerComponent);
     this.component(AuthenticationComponent);
     this.component(JWTAuthenticationComponent);
@@ -56,5 +61,4 @@ export class AsiaticBowBackendApplication extends BootMixin(
       },
     };
   }
-
 }

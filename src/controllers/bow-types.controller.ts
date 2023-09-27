@@ -1,4 +1,5 @@
 import {authenticate} from '@loopback/authentication';
+import {inject} from '@loopback/context';
 import {Count, CountSchema, repository} from '@loopback/repository';
 import {
   get,
@@ -9,11 +10,15 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {BowTypes} from '../models';
+import {BowTypes, DataUpdate} from '../models';
 import {BowTypesRepository} from '../repositories';
+import {DataUpdateController} from './data-update.controller';
 
 export class BowTypesController {
   constructor(
+    @inject('controllers.DataUpdateController')
+    private dataUpdateController: DataUpdateController,
+
     @repository(BowTypesRepository)
     public bowTypesRepository: BowTypesRepository,
   ) {}
@@ -36,8 +41,12 @@ export class BowTypesController {
       },
     })
     bowTypes: Omit<BowTypes, 'bowTypeId'>,
-  ): Promise<object> {
-    return this.bowTypesRepository.create(bowTypes);
+  ): Promise<BowTypes> {
+    const recordCreationOutput = await this.bowTypesRepository.create(bowTypes);
+    await this.dataUpdateController.createUpdates([
+      new DataUpdate({bowTypeId: recordCreationOutput.bowTypeId})
+    ]);
+    return recordCreationOutput
   }
 
   @get('/bow-types/count')

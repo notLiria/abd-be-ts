@@ -47,7 +47,6 @@ export class SampleController {
     public samplesRepository: SamplesRepository,
   ) {}
 
-  @authenticate.skip()
   @post('/samples')
   @response(200, {
     description: 'Samples model instance',

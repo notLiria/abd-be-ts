@@ -137,8 +137,10 @@ export class BowPicturesController {
               reject(error);
             }
           }
-          const createdEntries = await this.bowPictureRepository.createAll(newDbEntries);
-          resolve(createdEntries)
+          const createdEntries = await this.bowPictureRepository.createAll(
+            newDbEntries,
+          );
+          resolve(createdEntries);
         }
       });
     });

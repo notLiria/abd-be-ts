@@ -32,7 +32,7 @@ if (require.main === module) {
       },
     },
   };
-  console.log(`Server is running with port ${config.rest.port}`)
+  console.log(`Server is running with port ${config.rest.port}`);
   main(config).catch(err => {
     console.error('Cannot start the application.', err);
     process.exit(1);

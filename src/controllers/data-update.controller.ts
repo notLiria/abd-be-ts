@@ -1,33 +1,23 @@
-import {
-  Filter,
-  repository
-} from '@loopback/repository';
-import {
-  get,
-  getModelSchemaRef,
-  param,
-  response
-} from '@loopback/rest';
+import {Filter, repository} from '@loopback/repository';
+import {get, getModelSchemaRef, param, response} from '@loopback/rest';
 import {DataUpdate} from '../models';
 import {DataUpdateRepository} from '../repositories';
 
 export class DataUpdateController {
   constructor(
     @repository(DataUpdateRepository)
-    public dataUpdateRepository : DataUpdateRepository,
+    public dataUpdateRepository: DataUpdateRepository,
   ) {}
 
-
   async createUpdates(
-    dataUpdate:  Omit<DataUpdate, 'updateId'>[],
-  ): Promise<Object>{
-    const date = new Date()
+    dataUpdate: Omit<DataUpdate, 'updateId'>[],
+  ): Promise<Object> {
+    const date = new Date();
     dataUpdate.forEach(update => {
       update.modificationDate = date.toISOString();
-    })
+    });
     return this.dataUpdateRepository.createAll(dataUpdate);
   }
-
 
   @get('/data-updates')
   @response(200, {

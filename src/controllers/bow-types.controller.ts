@@ -44,9 +44,9 @@ export class BowTypesController {
   ): Promise<BowTypes> {
     const recordCreationOutput = await this.bowTypesRepository.create(bowTypes);
     await this.dataUpdateController.createUpdates([
-      new DataUpdate({bowTypeId: recordCreationOutput.bowTypeId})
+      new DataUpdate({bowTypeId: recordCreationOutput.bowTypeId}),
     ]);
-    return recordCreationOutput
+    return recordCreationOutput;
   }
 
   @get('/bow-types/count')

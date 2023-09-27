@@ -5,7 +5,7 @@ import {inject} from '@loopback/context';
 import {post, response} from '@loopback/rest';
 
 import {authenticate} from '@loopback/authentication';
-import {CachingService} from '../caching-service';
+import {CachingService} from '../services/caching.service';
 
 export class CacheController {
   constructor(

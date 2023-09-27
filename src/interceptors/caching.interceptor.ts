@@ -10,8 +10,8 @@ import {
 } from '@loopback/core';
 import {RestBindings} from '@loopback/rest';
 import debugFactory from 'debug';
-import {CachingService} from '../caching-service';
 import {CACHING_SERVICE} from '../keys';
+import {CachingService} from '../services/caching.service';
 
 const debug = debugFactory('caching');
 

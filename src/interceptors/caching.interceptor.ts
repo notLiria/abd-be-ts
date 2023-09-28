@@ -29,8 +29,9 @@ export class CachingInterceptor implements Provider<Interceptor> {
       const httpReq = await ctx.get(RestBindings.Http.REQUEST, {
         optional: true,
       });
+
       /* istanbul ignore if */
-      if (!httpReq) {
+      if (!httpReq || httpReq.method === 'POST') {
         // Not http request
         return next();
       }

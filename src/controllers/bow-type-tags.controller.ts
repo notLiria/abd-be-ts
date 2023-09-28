@@ -95,6 +95,20 @@ export class BowTypeTagsController {
     return this.bowTypeTagsRepository.find(bowTypeIdFilter);
   }
 
+  @authenticate.skip()
+  @get('/bow-type-tags/')
+  @response(200, {
+    description: 'All bow type tags',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(BowTypeTags),
+      },
+    },
+  })
+  async getAllBowTypeTags(): Promise<BowTypeTags[]> {
+    return this.bowTypeTagsRepository.find();
+  }
+
   @del('/bow-type-tags/')
   @response(204, {
     description: 'BowTypeTags DELETE success',

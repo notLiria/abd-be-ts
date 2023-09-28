@@ -70,7 +70,7 @@ export class BowTypesController {
       },
     },
   })
-  async find(): Promise<Object[]> {
+  async find(): Promise<BowTypes[]> {
     return this.bowTypesRepository.find();
   }
 

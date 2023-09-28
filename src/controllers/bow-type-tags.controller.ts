@@ -96,7 +96,7 @@ export class BowTypeTagsController {
   }
 
   @authenticate.skip()
-  @get('/bow-type-tags/')
+  @get('/bow-type-tags')
   @response(200, {
     description: 'All bow type tags',
     content: {

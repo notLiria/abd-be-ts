@@ -1,5 +1,6 @@
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
-import {Request, ResponseObject, RestBindings, get} from '@loopback/rest';
+import {Request, ResponseObject, RestBindings, get, post} from '@loopback/rest';
 
 /**
  * OpenAPI response for ping()
@@ -46,6 +47,14 @@ export class PingController {
       date: new Date(),
       url: this.req.url,
       headers: Object.assign({}, this.req.headers),
+    };
+  }
+
+  @authenticate('jwt')
+  @post('/ping/test')
+  pingPost(): object {
+    return {
+      message: 'Successfulled posted to /ping/test',
     };
   }
 }

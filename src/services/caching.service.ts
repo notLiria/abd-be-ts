@@ -50,7 +50,7 @@ export class CachingService {
    * @param message - Message
    */
   async set(key: string, value: any) {
-    this.store.set(key, {...value, timestamp: new Date().getTime()});
+    this.store.set(key, {value: value, timestamp: new Date().getTime()});
   }
 
   /**
@@ -60,7 +60,7 @@ export class CachingService {
   async get(key: string) {
     const expired = await this.isExpired(key);
     debug(`Getting cache for key ${key}. Expired: ${expired}`);
-    return expired ? undefined : this.store.get(key);
+    return expired ? undefined : this.store.get(key).value;
   }
 
   /**

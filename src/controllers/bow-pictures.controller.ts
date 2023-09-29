@@ -22,13 +22,13 @@ import {
 } from '@loopback/rest';
 
 import AWS from 'aws-sdk';
-import stream from 'stream';
-const {Duplex} = stream;
-
 import md5 from 'md5';
 import multer from 'multer';
-import {BowPicture} from '../models';
+import stream from 'stream';
+import {BowPicture, Samples} from '../models';
 import {BowPictureRepository} from '../repositories';
+import {SampleController} from './sample.controller';
+const {Duplex} = stream;
 
 function bufferToStream(buffer: any) {
   const duplexStream = new Duplex();
@@ -47,6 +47,8 @@ const s3 = new AWS.S3(s3Config);
 
 export class BowPicturesController {
   constructor(
+    @inject('controllers.SampleController')
+    private sampleController: SampleController,
     @repository(BowPictureRepository)
     public bowPictureRepository: BowPictureRepository,
   ) {}
@@ -170,12 +172,53 @@ export class BowPicturesController {
     @param.path.number('bow_type_id') bowTypeId: number,
     @param.filter(BowPicture, {exclude: 'where'})
     filter?: FilterExcludingWhere<BowPicture>,
-  ): Promise<Omit<BowPicture, 'bowTypeId' | 'pictureId'>[]> {
+  ): Promise<Object[]> {
     const filterBuilder = new FilterBuilder<BowPicture>();
     const bowTypeIdFilter = filterBuilder
       .fields('pictureLink', 'sampleId', 'caption')
       .where({bowTypeId})
       .build();
-    return this.bowPictureRepository.find(bowTypeIdFilter);
+    const pictures = await this.bowPictureRepository.find(bowTypeIdFilter);
+    const pictureSampleIds = pictures
+      .map((sample: BowPicture) => {
+        return sample.sampleId;
+      })
+      .filter((value, index, array) => array.indexOf(value) === index);
+
+    const fetchSubmodels = async (sampleIds: number[]) => {
+      try {
+        // Mapping each sampleId to a Promise
+        const promises = sampleIds.map(async (cur: number) => {
+          const assocSample = (await this.sampleController.findWithQuery({
+            fields: ['submodel'],
+            where: {sampleId: cur},
+          })) as Samples;
+          console.log(assocSample[0].submodel);
+          return {[cur]: assocSample[0].submodel};
+        });
+
+        // Awaiting all the promises to resolve
+        const results = await Promise.all(promises);
+
+        // Merging all the result objects into one
+        const submodels = results.reduce((acc, cur) => ({...acc, ...cur}), {});
+
+        return submodels;
+      } catch (error) {
+        console.error('Error fetching submodels:', error);
+        throw error; // or return an appropriate error object
+      }
+    };
+    const submodels = await fetchSubmodels(pictureSampleIds);
+
+    const moddedPictures = pictures.map((picture: BowPicture) => {
+      if (!picture.sampleId) return picture;
+      return {
+        ...picture,
+        submodel: submodels[picture.sampleId],
+      };
+    });
+
+    return moddedPictures;
   }
 }

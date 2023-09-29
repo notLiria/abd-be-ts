@@ -10,6 +10,7 @@ import {
 } from '@loopback/core';
 import {RestBindings} from '@loopback/rest';
 import debugFactory from 'debug';
+import md5 from 'md5';
 import {CACHING_SERVICE} from '../keys';
 import {CachingService} from '../services/caching.service';
 
@@ -37,7 +38,8 @@ export class CachingInterceptor implements Provider<Interceptor> {
       }
 
       const key = httpReq.path;
-      const cachingKey = `${key}`;
+      const query = md5(JSON.stringify(httpReq.query));
+      const cachingKey = `${key}:${query}`;
       const cachedResult = await this.cachingService.get(cachingKey);
       if (cachedResult && key !== '/cache/clear') {
         debug('Cache found for %s %j', cachingKey, cachedResult);

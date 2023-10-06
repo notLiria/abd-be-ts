@@ -3,6 +3,7 @@ import {inject} from '@loopback/context';
 import {
   Count,
   CountSchema,
+  Filter,
   FilterBuilder,
   repository,
 } from '@loopback/repository';
@@ -175,5 +176,11 @@ export class SampleController {
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.samplesRepository.deleteById(id);
+  }
+
+  async findWithQuery(
+    filter: Filter<Samples>
+  ): Promise<Object>{
+    return this.samplesRepository.find(filter)
   }
 }

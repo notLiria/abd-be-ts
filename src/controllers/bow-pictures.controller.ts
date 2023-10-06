@@ -12,6 +12,7 @@ import {
 import {
   get,
   getModelSchemaRef,
+  HttpErrors,
   param,
   post,
   Request,
@@ -21,14 +22,14 @@ import {
   RestBindings,
 } from '@loopback/rest';
 
-import AWS from 'aws-sdk';
-import stream from 'stream';
-const {Duplex} = stream;
-
+import AWS, {S3} from 'aws-sdk';
 import md5 from 'md5';
 import multer from 'multer';
-import {BowPicture} from '../models';
+import stream from 'stream';
+import {BowPicture, Samples} from '../models';
 import {BowPictureRepository} from '../repositories';
+import {SampleController} from './sample.controller';
+const {Duplex} = stream;
 
 function bufferToStream(buffer: any) {
   const duplexStream = new Duplex();
@@ -37,19 +38,24 @@ function bufferToStream(buffer: any) {
   return duplexStream;
 }
 
-const s3Config = {
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-};
 const s3BucketName = process.env.S3_BUCKET_NAME ?? 'asiatic-bow-database';
 
-const s3 = new AWS.S3(s3Config);
-
 export class BowPicturesController {
+  private s3: S3;
   constructor(
+    @inject('controllers.SampleController')
+    private sampleController: SampleController,
     @repository(BowPictureRepository)
     public bowPictureRepository: BowPictureRepository,
-  ) {}
+  ) {
+    if (process.env.S3_UPLOAD_ENABLE) {
+      const s3Config = {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      };
+      this.s3 = new AWS.S3(s3Config);
+    }
+  }
 
   @authenticate('jwt')
   @post('/bow-pictures')
@@ -83,7 +89,12 @@ export class BowPicturesController {
     })
     request: Request,
     @inject(RestBindings.Http.RESPONSE) uploadResponse: Response,
-  ): Promise<BowPicture[]> {
+  ): Promise<Object> {
+    if (!process.env.S3_UPLOAD_ENABLE) {
+      throw new HttpErrors.Forbidden(
+        'S3 Uploading is disabled on this environment',
+      );
+    }
     return new Promise<BowPicture[]>((resolve, reject) => {
       const storage = multer.memoryStorage();
       const upload = multer({storage});
@@ -122,7 +133,7 @@ export class BowPicturesController {
             };
             try {
               console.debug(`Uploading ${fileKey} to S3`);
-              const stored = await s3.upload(params).promise();
+              const stored = await this.s3.upload(params).promise();
               console.debug(
                 `Upload completed with results ${JSON.stringify(stored)}`,
               );
@@ -170,12 +181,26 @@ export class BowPicturesController {
     @param.path.number('bow_type_id') bowTypeId: number,
     @param.filter(BowPicture, {exclude: 'where'})
     filter?: FilterExcludingWhere<BowPicture>,
-  ): Promise<Omit<BowPicture, 'bowTypeId' | 'pictureId'>[]> {
+  ): Promise<Object[]> {
     const filterBuilder = new FilterBuilder<BowPicture>();
-    const bowTypeIdFilter = filterBuilder
-      .fields('pictureLink', 'sampleId', 'caption')
-      .where({bowTypeId})
-      .build();
-    return this.bowPictureRepository.find(bowTypeIdFilter);
+    const bowTypeIdFilter = filterBuilder.where({bowTypeId}).build();
+    const pictures = await this.bowPictureRepository.find(bowTypeIdFilter);
+    const samplesWithSubmodels = (
+      (await this.sampleController.findWithQuery({
+        fields: ['submodel', 'sampleId'],
+        where: {bowTypeId},
+      })) as Samples[]
+    ).reduce((accumulator: any, sample: Samples) => {
+      accumulator[sample.sampleId] = sample.submodel;
+      return accumulator;
+    }, {});
+    const picturesWithSubmodels = pictures.map(picture => {
+      return {
+        ...picture,
+        pictureLink: `http://${s3BucketName}.s3.amazonaws.com/${picture.pictureLink}`,
+        submodel: samplesWithSubmodels[picture.sampleId],
+      };
+    });
+    return picturesWithSubmodels;
   }
 }

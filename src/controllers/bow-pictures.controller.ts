@@ -12,6 +12,7 @@ import {
 import {
   get,
   getModelSchemaRef,
+  HttpErrors,
   param,
   post,
   Request,
@@ -21,7 +22,7 @@ import {
   RestBindings,
 } from '@loopback/rest';
 
-import AWS from 'aws-sdk';
+import AWS, {S3} from 'aws-sdk';
 import md5 from 'md5';
 import multer from 'multer';
 import stream from 'stream';
@@ -37,21 +38,24 @@ function bufferToStream(buffer: any) {
   return duplexStream;
 }
 
-const s3Config = {
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-};
 const s3BucketName = process.env.S3_BUCKET_NAME ?? 'asiatic-bow-database';
 
-const s3 = new AWS.S3(s3Config);
-
 export class BowPicturesController {
+  private s3: S3;
   constructor(
     @inject('controllers.SampleController')
     private sampleController: SampleController,
     @repository(BowPictureRepository)
     public bowPictureRepository: BowPictureRepository,
-  ) {}
+  ) {
+    if (process.env.S3_UPLOAD_ENABLE) {
+      const s3Config = {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      };
+      this.s3 = new AWS.S3(s3Config);
+    }
+  }
 
   @authenticate('jwt')
   @post('/bow-pictures')
@@ -85,7 +89,12 @@ export class BowPicturesController {
     })
     request: Request,
     @inject(RestBindings.Http.RESPONSE) uploadResponse: Response,
-  ): Promise<BowPicture[]> {
+  ): Promise<Object> {
+    if (!process.env.S3_UPLOAD_ENABLE) {
+      throw new HttpErrors.Forbidden(
+        'S3 Uploading is disabled on this environment',
+      );
+    }
     return new Promise<BowPicture[]>((resolve, reject) => {
       const storage = multer.memoryStorage();
       const upload = multer({storage});
@@ -124,7 +133,7 @@ export class BowPicturesController {
             };
             try {
               console.debug(`Uploading ${fileKey} to S3`);
-              const stored = await s3.upload(params).promise();
+              const stored = await this.s3.upload(params).promise();
               console.debug(
                 `Upload completed with results ${JSON.stringify(stored)}`,
               );
@@ -174,51 +183,24 @@ export class BowPicturesController {
     filter?: FilterExcludingWhere<BowPicture>,
   ): Promise<Object[]> {
     const filterBuilder = new FilterBuilder<BowPicture>();
-    const bowTypeIdFilter = filterBuilder
-      .fields('pictureLink', 'sampleId', 'caption')
-      .where({bowTypeId})
-      .build();
+    const bowTypeIdFilter = filterBuilder.where({bowTypeId}).build();
     const pictures = await this.bowPictureRepository.find(bowTypeIdFilter);
-    const pictureSampleIds = pictures
-      .map((sample: BowPicture) => {
-        return sample.sampleId;
-      })
-      .filter((value, index, array) => array.indexOf(value) === index);
-
-    const fetchSubmodels = async (sampleIds: number[]) => {
-      try {
-        // Mapping each sampleId to a Promise
-        const promises = sampleIds.map(async (cur: number) => {
-          const assocSample = (await this.sampleController.findWithQuery({
-            fields: ['submodel'],
-            where: {sampleId: cur},
-          })) as Samples;
-          console.log(assocSample[0].submodel);
-          return {[cur]: assocSample[0].submodel};
-        });
-
-        // Awaiting all the promises to resolve
-        const results = await Promise.all(promises);
-
-        // Merging all the result objects into one
-        const submodels = results.reduce((acc, cur) => ({...acc, ...cur}), {});
-
-        return submodels;
-      } catch (error) {
-        console.error('Error fetching submodels:', error);
-        throw error; // or return an appropriate error object
-      }
-    };
-    const submodels = await fetchSubmodels(pictureSampleIds);
-
-    const moddedPictures = pictures.map((picture: BowPicture) => {
-      if (!picture.sampleId) return picture;
+    const samplesWithSubmodels = (
+      (await this.sampleController.findWithQuery({
+        fields: ['submodel', 'sampleId'],
+        where: {bowTypeId},
+      })) as Samples[]
+    ).reduce((accumulator: any, sample: Samples) => {
+      accumulator[sample.sampleId] = sample.submodel;
+      return accumulator;
+    }, {});
+    const picturesWithSubmodels = pictures.map(picture => {
       return {
         ...picture,
-        submodel: submodels[picture.sampleId],
+        pictureLink: `http://${s3BucketName}.s3.amazonaws.com/${picture.pictureLink}`,
+        submodel: samplesWithSubmodels[picture.sampleId],
       };
     });
-
-    return moddedPictures;
+    return picturesWithSubmodels;
   }
 }

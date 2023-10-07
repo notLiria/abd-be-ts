@@ -15,7 +15,7 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {AbdBePgsqlDataSource} from './datasources';
-import {CachingInterceptor} from './interceptors';
+import {CachingInterceptor, SentryInterceptor} from './interceptors';
 import {AUTOTAGGING_SERVICE, CACHING_SERVICE} from './keys';
 import {MySequence} from './sequence';
 import {AutoTaggerService} from './services';
@@ -45,6 +45,8 @@ export class AsiaticBowBackendApplication extends BootMixin(
     this.configure(CACHING_SERVICE).to({ttl: 43200000});
     this.add(createBindingFromClass(CachingService, {key: CACHING_SERVICE}));
     this.add(createBindingFromClass(CachingInterceptor));
+
+    this.add(createBindingFromClass(SentryInterceptor));
 
     this.add(createBindingFromClass(AutoTaggerService, {key: AUTOTAGGING_SERVICE}));
 

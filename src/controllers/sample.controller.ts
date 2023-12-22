@@ -22,20 +22,12 @@ import {
 
 import {DataUpdate, Samples} from '../models';
 import {SamplesRepository} from '../repositories';
-import {dfPairsToPath} from '../utils/dbFunctions';
-import {
-  calcCentralDifferences,
-  calcDerivative,
-  calcRegressionCurve,
-  exponentiallyFitDfData,
-} from '../utils/dfcRegression';
-import {getLongbowPoint} from '../utils/energyCalcs';
-import {
-  stringifyDfcDerivativeEqn,
-  stringifyDfcEqn,
-} from '../utils/mathFunctions';
 
 import {AutoTaggerService} from '../services';
+import {dfPairsToPath} from '../utils/dbFunctions';
+import {calcCentralDifferences, calcDerivative, calcRegressionCurve, exponentiallyFitDfData} from '../utils/dfcRegression';
+import {getLongbowPoint} from '../utils/energyCalcs';
+import {stringifyDfcDerivativeEqn, stringifyDfcEqn} from '../utils/mathFunctions';
 import {BowTypeTagsController} from './bow-type-tags.controller';
 import {BowTypesController} from './bow-types.controller';
 import {DataUpdateController} from './data-update.controller';
@@ -83,7 +75,9 @@ export class SampleController {
     const newSample: Omit<Samples, 'sampleId'> = {
       ...userSample,
     };
+
     const dfData = JSON.parse(userSample.dfData);
+
     const expCoeffs = exponentiallyFitDfData(dfData);
 
     newSample.centralDifferences = dfPairsToPath(
@@ -110,13 +104,19 @@ export class SampleController {
 
     const createdSample = await this.samplesRepository.create(newSample);
 
-    await this.dataUpdateController.createUpdates([
+    console.log(createdSample)
+    const updates = await this.dataUpdateController.createUpdates([
       new DataUpdate({
-        bowTypeId: newSample.bow_type_id,
+        bowTypeId: newSample.bowTypeId,
+        sampleId: createdSample.sampleId
       }),
     ]);
+    console.log(`Created updates successfully`)
+    console.log(updates)
 
     await this.autoTaggerService.tagSample(newSample);
+    console.log(`Successfully awaited all tags`)
+    console.log(`Returning now`)
     return createdSample;
   }
 

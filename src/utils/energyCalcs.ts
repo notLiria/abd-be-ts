@@ -96,5 +96,5 @@ export const getLongbowPoint = (
     return el.areaUnderExpCurve < el.areaUnderLine;
   });
 
-  return longbowPoint.length > 0 ? longbowPoint[0].x : -1;
+  return longbowPoint.length > 0 ? Math.floor(longbowPoint[0].x) : -1;
 };

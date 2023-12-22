@@ -31,8 +31,10 @@ export class CachingInterceptor implements Provider<Interceptor> {
         optional: true,
       });
 
+      console.log(`Recieved request`)
       /* istanbul ignore if */
       if (!httpReq || httpReq.method === 'POST') {
+        console.log(`Request is skipping the caching step`)
         // Not http request
         return next();
       }

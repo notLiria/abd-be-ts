@@ -12,10 +12,14 @@ export class DataUpdateController {
   async createUpdates(
     dataUpdate: Omit<DataUpdate, 'updateId'>[],
   ): Promise<Object> {
+    console.log(`Recieved dataUpdates`)
+    console.log(dataUpdate)
     const date = new Date();
     dataUpdate.forEach(update => {
       update.modificationDate = date.toISOString();
     });
+    console.log(`DataUpdate with time`)
+    console.log(dataUpdate)
     return this.dataUpdateRepository.createAll(dataUpdate);
   }
 

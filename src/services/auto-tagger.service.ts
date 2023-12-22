@@ -25,11 +25,11 @@ const autoTaggableTags = [
   {
     tagName: 'medium bow',
     condition: (sample: SampleWithoutId) =>
-      sample.strungLength > 125 && sample.strungLength <= 136,
+      sample.strungLength > 125 && sample.strungLength <= 139,
   },
   {
     tagName: 'large bow',
-    condition: (sample: SampleWithoutId) => sample.strungLength > 140,
+    condition: (sample: SampleWithoutId) => sample.strungLength > 139,
   },
   {
     tagName: 'short draw length',
@@ -80,6 +80,7 @@ export class AutoTaggerService {
       .map(tag => (tag.condition(input) ? tag.tagId : undefined))
       .filter(x => x !== undefined);
 
+      console.log(input)
     autoTaggableTagsWithIds.forEach(tag => {
       console.log(`Checking condition for ${tag.tagName}: ${tag.condition(input)}`);
     });

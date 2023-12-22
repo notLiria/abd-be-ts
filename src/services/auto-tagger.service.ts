@@ -80,9 +80,8 @@ export class AutoTaggerService {
       .map(tag => (tag.condition(input) ? tag.tagId : undefined))
       .filter(x => x !== undefined);
 
-      console.log(input)
     autoTaggableTagsWithIds.forEach(tag => {
-      console.log(`Checking condition for ${tag.tagName}: ${tag.condition(input)}`);
+      debug(`Checking condition for ${tag.tagName}: ${tag.condition(input)}`);
     });
 
     const applicableTags = applicableTagIds.map(async tagId => {

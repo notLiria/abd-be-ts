@@ -19,7 +19,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-
+import debugFactory from 'debug';
 import {DataUpdate, Samples} from '../models';
 import {SamplesRepository} from '../repositories';
 
@@ -32,6 +32,8 @@ import {BowTypeTagsController} from './bow-type-tags.controller';
 import {BowTypesController} from './bow-types.controller';
 import {DataUpdateController} from './data-update.controller';
 import {TagController} from './tag.controller';
+
+const debug = debugFactory('sampleService');
 
 @authenticate('jwt')
 export class SampleController {
@@ -77,6 +79,8 @@ export class SampleController {
     };
 
     const dfData = JSON.parse(userSample.dfData);
+    debug(`The following sample data was recieved`)
+    debug(dfData)
 
     const expCoeffs = exponentiallyFitDfData(dfData);
 
@@ -104,19 +108,20 @@ export class SampleController {
 
     const createdSample = await this.samplesRepository.create(newSample);
 
-    console.log(createdSample)
+    debug(`Successfully created sample`)
+    debug(createdSample)
+
     const updates = await this.dataUpdateController.createUpdates([
       new DataUpdate({
         bowTypeId: newSample.bowTypeId,
         sampleId: createdSample.sampleId
       }),
     ]);
-    console.log(`Created updates successfully`)
-    console.log(updates)
-
+    debug(`Successfully created relevant data updates`)
+    debug(updates)
     await this.autoTaggerService.tagSample(newSample);
-    console.log(`Successfully awaited all tags`)
-    console.log(`Returning now`)
+    debug(`Successfully added relevant tags`)
+    debug(`------------ END SAMPLE CREATION --------------`)
     return createdSample;
   }
 

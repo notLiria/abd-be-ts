@@ -10,14 +10,13 @@ import {
   repository,
 } from '@loopback/repository';
 import {
-  del,
   get,
   getModelSchemaRef,
   param,
   patch,
   post,
   requestBody,
-  response,
+  response
 } from '@loopback/rest';
 import debugFactory from 'debug';
 import {DataUpdate, Samples} from '../models';
@@ -262,16 +261,11 @@ export class SampleController {
     })
     samples: Samples,
   ): Promise<void> {
+    const sampleDf = dfPairsToPath(JSON.parse(samples.dfData))
+    samples.dfData = sampleDf
     await this.samplesRepository.updateById(id, samples);
   }
 
-  @del('/samples/{id}')
-  @response(204, {
-    description: 'Samples DELETE success',
-  })
-  async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.samplesRepository.deleteById(id);
-  }
 
   async findWithQuery(filter: Filter<Samples>): Promise<Object> {
     return this.samplesRepository.find(filter);

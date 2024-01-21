@@ -109,7 +109,4 @@ export class BowTypesController {
   ): Promise<void> {
     await this.bowTypesRepository.updateById(id, bowTypes);
   }
-
-
-  
 }

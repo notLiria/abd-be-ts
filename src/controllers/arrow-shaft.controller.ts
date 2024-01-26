@@ -108,7 +108,7 @@ export class ArrowShaftController {
       })
       if (existingShaft) {
         await this.arrowShaftRepository.updateById(existingShaft.shaftId, shaft)
-        debug(`Shaft already exists, updating`)
+        debug(`Shaft ${existingShaft} already exists, updating`)
       }
       else {
         await this.arrowShaftRepository.create(shaft)

@@ -11,12 +11,15 @@ import {
   getModelSchemaRef,
   param,
   post,
+  put,
   requestBody,
   response,
 } from '@loopback/rest';
+import debugFactory from 'debug';
 import {ShaftCollar} from '../models';
 import {ShaftCollarRepository} from '../repositories';
 
+const debug = debugFactory('arrowShaftController')
 export class ShaftCollarController {
   constructor(
     @repository(ShaftCollarRepository)
@@ -75,5 +78,44 @@ export class ShaftCollarController {
     @param.filter(ShaftCollar) filter?: Filter<ShaftCollar>,
   ): Promise<ShaftCollar[]> {
     return this.shaftCollarRepository.find(filter);
+  }
+
+  @authenticate('jwt')
+  @put('/shaft-collars')
+  @response(200, {
+    description: 'ArrowShaft model instance',
+    content: {'application/json': {schema: getModelSchemaRef(ShaftCollar)}},
+  })
+  async update(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: getModelSchemaRef(ShaftCollar, {
+              title: 'NewShaftCollar',
+              exclude: ['collarId'],
+            }),
+          },
+        },
+      },
+    })
+    shaftCollars: Omit<ShaftCollar, 'collar_id'>[],
+  ): Promise<void>{
+
+    for (const collar of shaftCollars) {
+      const existingCollar = await this.shaftCollarRepository.findOne({
+        where: {manufacturer: collar.manufacturer, model: collar.model}
+      })
+      if (existingCollar) {
+        await this.shaftCollarRepository.updateById(existingCollar.collarId, collar)
+        debug(`Shaft ${existingCollar} already exists, updating`)
+      }
+      else {
+        await this.shaftCollarRepository.create(collar)
+        debug(`Shaft does not exist, creating`)
+      }
+    }
+
   }
 }

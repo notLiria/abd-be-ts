@@ -105,7 +105,7 @@ export class ShaftCollarController {
 
     for (const collar of shaftCollars) {
       const existingCollar = await this.shaftCollarRepository.findOne({
-        where: {manufacturer: collar.manufacturer, model: collar.model}
+        where: {manufacturer: collar.manufacturer, model: collar.model, shaftSize: collar.shaftSize}
       })
       if (existingCollar) {
         await this.shaftCollarRepository.updateById(existingCollar.collarId, collar)

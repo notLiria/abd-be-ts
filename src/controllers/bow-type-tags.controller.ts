@@ -109,6 +109,7 @@ export class BowTypeTagsController {
     return this.bowTypeTagsRepository.find();
   }
 
+
   @del('/bow-type-tags/')
   @response(204, {
     description: 'BowTypeTags DELETE success',

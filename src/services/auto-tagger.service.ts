@@ -3,8 +3,9 @@ import { /* inject, */ BindingScope, injectable} from '@loopback/core';
 import {inject} from '@loopback/context';
 import {BowTypeTagsController, TagController} from '../controllers';
 
+import debugFactory from 'debug';
 import {BowTypeTags, Samples} from '../models';
-
+const debug = debugFactory('autoTagging');
 interface AutoTaggableTag {
   tagName: string;
   condition: (sample: SampleWithoutId) => boolean;
@@ -24,11 +25,11 @@ const autoTaggableTags = [
   {
     tagName: 'medium bow',
     condition: (sample: SampleWithoutId) =>
-      sample.strungLength > 125 && sample.strungLength <= 136,
+      sample.strungLength > 125 && sample.strungLength <= 139,
   },
   {
     tagName: 'large bow',
-    condition: (sample: SampleWithoutId) => sample.strungLength > 140,
+    condition: (sample: SampleWithoutId) => sample.strungLength > 139,
   },
   {
     tagName: 'short draw length',
@@ -80,19 +81,22 @@ export class AutoTaggerService {
       .filter(x => x !== undefined);
 
     autoTaggableTagsWithIds.forEach(tag => {
-      console.log(`Checking condition for ${tag.tagName}`);
-      console.log(`Condition returned ${tag.condition(input)}`);
+      debug(`Checking condition for ${tag.tagName}: ${tag.condition(input)}`);
     });
 
-    await Promise.all(
-      applicableTagIds.map(async tagId => {
-        return this.bowTypeTagsController.create(
+    const applicableTags = applicableTagIds.map(async tagId => {
+      try {
+        return await this.bowTypeTagsController.create(
           new BowTypeTags({
             bowTypeId: input.bowTypeId,
             tagId,
           }),
         );
-      }),
-    );
+
+  } catch(e) {
+    debug(`Error in autotagging`)
+    debug(e)
+  }});
+      return Promise.all(applicableTags)
   }
 }

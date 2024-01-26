@@ -10,36 +10,29 @@ import {
   repository,
 } from '@loopback/repository';
 import {
-  del,
   get,
   getModelSchemaRef,
   param,
   patch,
   post,
   requestBody,
-  response,
+  response
 } from '@loopback/rest';
-
+import debugFactory from 'debug';
 import {DataUpdate, Samples} from '../models';
 import {SamplesRepository} from '../repositories';
-import {dfPairsToPath} from '../utils/dbFunctions';
-import {
-  calcCentralDifferences,
-  calcDerivative,
-  calcRegressionCurve,
-  exponentiallyFitDfData,
-} from '../utils/dfcRegression';
-import {getLongbowPoint} from '../utils/energyCalcs';
-import {
-  stringifyDfcDerivativeEqn,
-  stringifyDfcEqn,
-} from '../utils/mathFunctions';
 
 import {AutoTaggerService} from '../services';
+import {dfPairsToPath} from '../utils/dbFunctions';
+import {calcCentralDifferences, calcDerivative, calcRegressionCurve, exponentiallyFitDfData} from '../utils/dfcRegression';
+import {getLongbowPoint} from '../utils/energyCalcs';
+import {stringifyDfcDerivativeEqn, stringifyDfcEqn} from '../utils/mathFunctions';
 import {BowTypeTagsController} from './bow-type-tags.controller';
 import {BowTypesController} from './bow-types.controller';
 import {DataUpdateController} from './data-update.controller';
 import {TagController} from './tag.controller';
+
+const debug = debugFactory('sampleService');
 
 @authenticate('jwt')
 export class SampleController {
@@ -83,7 +76,11 @@ export class SampleController {
     const newSample: Omit<Samples, 'sampleId'> = {
       ...userSample,
     };
+
     const dfData = JSON.parse(userSample.dfData);
+    debug(`The following sample data was recieved`)
+    debug(dfData)
+
     const expCoeffs = exponentiallyFitDfData(dfData);
 
     newSample.centralDifferences = dfPairsToPath(
@@ -110,13 +107,20 @@ export class SampleController {
 
     const createdSample = await this.samplesRepository.create(newSample);
 
-    await this.dataUpdateController.createUpdates([
+    debug(`Successfully created sample`)
+    debug(createdSample)
+
+    const updates = await this.dataUpdateController.createUpdates([
       new DataUpdate({
-        bowTypeId: newSample.bow_type_id,
+        bowTypeId: newSample.bowTypeId,
+        sampleId: createdSample.sampleId
       }),
     ]);
-
+    debug(`Successfully created relevant data updates`)
+    debug(updates)
     await this.autoTaggerService.tagSample(newSample);
+    debug(`Successfully added relevant tags`)
+    debug(`------------ END SAMPLE CREATION --------------`)
     return createdSample;
   }
 
@@ -257,16 +261,11 @@ export class SampleController {
     })
     samples: Samples,
   ): Promise<void> {
+    const sampleDf = dfPairsToPath(JSON.parse(samples.dfData))
+    samples.dfData = sampleDf
     await this.samplesRepository.updateById(id, samples);
   }
 
-  @del('/samples/{id}')
-  @response(204, {
-    description: 'Samples DELETE success',
-  })
-  async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.samplesRepository.deleteById(id);
-  }
 
   async findWithQuery(filter: Filter<Samples>): Promise<Object> {
     return this.samplesRepository.find(filter);

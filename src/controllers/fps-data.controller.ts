@@ -12,6 +12,7 @@ import {
   getModelSchemaRef,
   param,
   post,
+  put,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -87,5 +88,31 @@ export class FpsDataController {
     const filterBuilder = new FilterBuilder<FpsData>();
     const sampleIdFilter = filterBuilder.where({sampleId}).build();
     return this.fpsDataRepository.find(sampleIdFilter);
+  }
+
+  @authenticate('jwt')
+  @put('/fps-data')
+  @response(200, {
+    description: 'FPS Data model instance',
+    content: {'application/json': {schema: getModelSchemaRef(FpsData)}},
+  })
+  async update(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: getModelSchemaRef(FpsData, {
+              title: 'NewFpsData',
+              exclude: ['fpsId'],
+            }),
+          },
+        },
+      },
+    })
+    fpsPoints: Omit<FpsData, 'fps_id'>[],
+  ): Promise<FpsData[]>{//Promise<ArrowShaft[]> {
+    console.log(fpsPoints)
+    return this.fpsDataRepository.createAll(fpsPoints)
   }
 }

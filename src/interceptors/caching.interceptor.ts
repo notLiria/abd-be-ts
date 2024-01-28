@@ -30,11 +30,9 @@ export class CachingInterceptor implements Provider<Interceptor> {
       const httpReq = await ctx.get(RestBindings.Http.REQUEST, {
         optional: true,
       });
-      console.log(`Recieved request: ${httpReq?.method}`)
       debug(`Recieved request: ${httpReq?.method}`)
       /* istanbul ignore if */
       if (!httpReq || httpReq.method === 'POST') {
-        console.log(`Request type is POST; skipping the caching step`)
         // Not http request
         return next();
       }

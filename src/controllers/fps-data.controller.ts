@@ -112,7 +112,6 @@ export class FpsDataController {
     })
     fpsPoints: Omit<FpsData, 'fps_id'>[],
   ): Promise<FpsData[]>{//Promise<ArrowShaft[]> {
-    console.log(fpsPoints)
     return this.fpsDataRepository.createAll(fpsPoints)
   }
 }

@@ -139,8 +139,8 @@ export class BowPicturesController {
               );
               const newDbEntry = new BowPicture({
                 pictureLink: fileKey,
-                bowTypeId: request.body.bow_type_id,
-                sampleId: request.body.sample_id,
+                bowTypeId: request.body.bowTypeId,
+                sampleId: request.body.sampleId,
                 caption: descriptionArray[index],
               });
               newDbEntries.push(newDbEntry);

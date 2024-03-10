@@ -98,10 +98,10 @@ export class SampleController {
     );
     newSample.dfData = dfPairsToPath(dfData);
     newSample.coeffs = `{${[
-      expCoeffs.p0,
-      expCoeffs.p1,
       expCoeffs.lambda0,
       expCoeffs.lambda1,
+      expCoeffs.p0,
+      expCoeffs.p1,
       expCoeffs.c,
     ].join(',')}}`;
 
